@@ -1,8 +1,7 @@
 import time
-import datetime
 import streamlit as st
 import pandas as pd
-from datetime import date
+from datetime import date, datetime
 from pyparsing import empty
 
 def calculate_dutch_pay(df):
@@ -48,7 +47,7 @@ if 'enter_names' not in st.session_state:
     st.session_state['enter_names'] = False
 if 'enter_price' not in st.session_state:
     st.session_state['enter_price'] = False
-SPINNER_SECONDS = 2
+PROGRESS_BAR_SECONDS = 2
 
 empty_L, main_site, empty_R = st.columns([0.3, 1.0, 0.3])
 with empty_L:
@@ -123,20 +122,21 @@ with main_site:
 
         if st.button('OK', key='bt2'):
             st.session_state['enter_price'] = True
-            #st.write(f"{people_num} names have been entered.")
         st.divider()
     
     # step 3. calculate
     if st.session_state['enter_price']== True:
-        with st.spinner('Wait for it...'):
-            time.sleep(SPINNER_SECONDS)
-        st.toast('Done!')
-        st.subheader("Result")
-        
+        placeholder = st.empty()
+        for i in range(0,110,10):
+            placeholder.progress(i, "Wait for it...")
+            time.sleep(PROGRESS_BAR_SECONDS/10)
+        placeholder.markdown("Done!")
+
+        st.subheader("Result")    
         result_df = calculate_dutch_pay(return_df)
         st.dataframe(result_df)
         
-        current_datetime = datetime.datetime.now()
+        current_datetime = datetime.now()
         formatted_datetime = current_datetime.strftime("%Y%m%d_%H%M%S")
         csv = get_csv(result_df)
         st.download_button(
